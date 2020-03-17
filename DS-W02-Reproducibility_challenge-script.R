@@ -62,9 +62,13 @@ BOM_station_rename <- rename(BOM_filtered, Station_ID = Station_number)
 
 BOM_merge_data <- full_join(BOM_station_rename, BOM_station_data)
 
-# To work out what what the average daily temperature is, then utilise 
-# group_by and arrange functions.
+# Solution to Q3
 
+BOM_state_avg_temp <- BOM_merge_data %>%
+  mutate(temp_var = as.numeric(max_temp) - as.numeric(min_temp))  %>% 
+  group_by(state) %>% 
+  summarise(temp_var = mean(temp_var, na.rm = TRUE)) %>% 
+  arrange(temp_var)
 
 
 
