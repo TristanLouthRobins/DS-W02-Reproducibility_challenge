@@ -48,27 +48,31 @@ view(BOM_temp_diff)
 
 # Q3: Which state saw the lowest average daily temperature difference?
 
-
-view(BOM_Stations)
-BOM_filtered
-
 BOM_station_data <- BOM_Stations %>% 
   gather(Station_ID, Misc, -info) %>% 
   spread(info, Misc) 
 
 BOM_station_data <- mutate(BOM_station_data, Station_ID = as.numeric(Station_ID))
+# Since the format of the Station_ID column data is formatted as characters, this mutate 
+# and as.numeric function change the column data to a numeric format. 
 
 BOM_station_rename <- rename(BOM_filtered, Station_ID = Station_number) 
+# BOM_filtered is a filtered version of the BOM_data tibble, the rename function is 
+# used to ensure the Station column names and format in both tibbles are the same.
 
 BOM_merge_data <- full_join(BOM_station_rename, BOM_station_data)
-
-# Solution to Q3
+# Using full join to merge both tibbles.
 
 BOM_state_avg_temp <- BOM_merge_data %>%
   mutate(temp_var = as.numeric(max_temp) - as.numeric(min_temp))  %>% 
   group_by(state) %>% 
   summarise(temp_var = mean(temp_var, na.rm = TRUE)) %>% 
   arrange(temp_var)
+# Using the same mutate function as Q2 to create a temperature difference column, 
+# called 'temp_var' then using group_by to group the tibble by 'state' and then 
+# summarising a mean to determine the average temp for each state. 
+# Lastly, the arrange funtion is used to display the state averages in ascending order.
+
 
 
 
