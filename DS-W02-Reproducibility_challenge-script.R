@@ -2,13 +2,13 @@ library(tidyverse)
 BOM_data <- read_csv("data/BOM_data.csv")
 BOM_Stations <- read_csv("data/BOM_stations.csv")
 
-# Question 1:
+# Q1:
 # For each station, how many days have a minimum temperature, 
 # a maximum temperature and a rainfall measurement recorded?
 
 BOM_data_sep <- BOM_data %>% 
   separate(Temp_min_max, into = c('min_temp', 'max_temp'), sep = "/")
-BOM_data_sep
+view(BOM_data_sep)
 
 # filtering out the variables in the selected columns with a '-'.
 
@@ -30,3 +30,23 @@ BOM_data_sep <- BOM_data %>%
 Q1_ans
 
 ###################################
+
+# Q2: Which month saw the lowest average daily temperature difference?
+
+BOM_separated <- BOM_data %>% 
+  separate(Temp_min_max, into = c('min_temp', 'max_temp'), sep = "/")
+
+BOM_temp_diff <- BOM_separated %>% 
+  mutate(temp_var = as.numeric(max_temp) - as.numeric(min_temp))  %>% 
+  group_by(Month) %>% 
+  summarise(temp_var = mean(temp_var, na.rm = TRUE)) %>% 
+  arrange(temp_var)
+
+view(BOM_temp_diff)
+
+####################################
+
+# Q3: Which state saw the lowest average daily temperature difference?
+
+
+
