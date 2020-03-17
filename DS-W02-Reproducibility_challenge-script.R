@@ -49,4 +49,22 @@ view(BOM_temp_diff)
 # Q3: Which state saw the lowest average daily temperature difference?
 
 
+view(BOM_Stations)
+BOM_filtered
+
+BOM_station_data <- BOM_Stations %>% 
+  gather(Station_ID, Misc, -info) %>% 
+  spread(info, Misc) 
+
+BOM_station_data <- mutate(BOM_station_data, Station_ID = as.numeric(Station_ID))
+
+BOM_station_rename <- rename(BOM_filtered, Station_ID = Station_number) 
+
+BOM_merge_data <- full_join(BOM_station_rename, BOM_station_data)
+
+# To work out what what the average daily temperature is, then utilise 
+# group_by and arrange functions.
+
+
+
 
