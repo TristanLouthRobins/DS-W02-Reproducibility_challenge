@@ -21,7 +21,10 @@ summarise(BOM_data_grouped_by_station, n_days = n())
 
 # alternative solution to Q1 using pipe
 
-Q1_ans <- filter(BOM_data_sep, min_temp != "-", max_temp != "-", Rainfall != "-") %>% 
+BOM_data_sep <- BOM_data %>% 
+  separate(Temp_min_max, into = c('min_temp', 'max_temp'), sep = "/")
+
+  Q1_ans <- filter(BOM_data_sep, min_temp != "-", max_temp != "-", Rainfall != "-") %>% 
   group_by(Station_number) %>% summarise(n_days = n())
 
 Q1_ans
