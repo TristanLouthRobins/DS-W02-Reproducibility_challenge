@@ -9,15 +9,21 @@ BOM_Stations <- read_csv("data/BOM_stations.csv")
 BOM_data_sep <- BOM_data %>% 
   separate(Temp_min_max, into = c('min_temp', 'max_temp'), sep = "/")
 view(BOM_data_sep)
-
-# filtering out the variables in the selected columns with a '-'.
+# define a new variable which separates the Temp_min_max value into
+# separate columns.
 
 BOM_filtered <- BOM_data_sep %>% 
   filter(min_temp != "-" & max_temp != "-", Rainfall != "-")
+# a new variable defined to filter out the values in the min_temp and max_temp 
+# columns which contain a '-'.
 
 BOM_data_grouped_by_station <-  group_by(BOM_filtered, Station_number)
+# a new variable defined to group the dataframe/tibble by the Station_number.
 
 summarise(BOM_data_grouped_by_station, n_days = n())
+# summarise the variable by number of days.
+
+BOM_data_grouped_by_station
 
 # alternative solution to Q1 using pipe
 
@@ -63,16 +69,60 @@ BOM_station_rename <- rename(BOM_filtered, Station_ID = Station_number)
 BOM_merge_data <- full_join(BOM_station_rename, BOM_station_data)
 # Using full join to merge both tibbles.
 
-BOM_state_avg_temp <- BOM_merge_data %>%
+Answer_to_Q3 <- BOM_merge_data %>%
   mutate(temp_var = as.numeric(max_temp) - as.numeric(min_temp))  %>% 
   group_by(state) %>% 
   summarise(temp_var = mean(temp_var, na.rm = TRUE)) %>% 
   arrange(temp_var)
+
 # Using the same mutate function as Q2 to create a temperature difference column, 
 # called 'temp_var' then using group_by to group the tibble by 'state' and then 
 # summarising a mean to determine the average temp for each state. 
 # Lastly, the arrange funtion is used to display the state averages in ascending order.
 
+# Answer to Q3: QLD saw the lowest average daily temp difference.
 
+######################################
 
+# Q4: Does the westmost (lowest longitude) or eastmost (highest longitude) 
+# weather station in our dataset have a higher average solar exposure?
 
+BOM_solar <- BOM_merge_data %>% 
+  filter(Solar_exposure != '-') %>% 
+  mutate(Solar_exposure = as.numeric(Solar_exposure)) %>% 
+  group_by(state, Station_ID, lon) %>% 
+  summarise(Solar_exposure = mean(Solar_exposure)) %>% 
+  arrange(lon) %>% 
+  ungroup() %>% 
+  slice(-2: -(n()-1)) 
+
+# Define a new variable, convert the character value for 
+# Solar_exposure to numeric; group_by state, Station_ID and lon;
+# summarise Solar_exposure by the mean Solar_exposure;
+# arrange in ascending order.
+
+# We now have an ascending summary of the mean Solar_exposure listed by 
+# lowest to highest longitude. In order to remove everything but the lowest 
+# to highest values, we will need to un_group and slice the tibble.
+#
+# ungroup() is used to remove the grouping function, because after summarising
+# it is no longer required and will confuse the 'slice' function.
+#
+# slice omits everything from the second row to second to last row. 
+# 'n' tells us the total number of rows in the table based upon the grouping function:
+# e.g -2 removes second line through to second-to-last line: -(n()-1))
+# full slice code: slice(-2: -(n()-1))
+
+# Answer to Q4: Station 9194 (westmost) has a Solar exposure of 19.1; 
+# Station 40043 (eastmost) has a Solar exposure of 19.6
+
+# Alternative solution could use a second filter instead of slice.
+
+BOM_solar_alt <- BOM_merge_data %>% 
+  filter(Solar_exposure != '-') %>% 
+  mutate(Solar_exposure = as.numeric(Solar_exposure)) %>% 
+  group_by(state, Station_ID, lon) %>% 
+  summarise(Solar_exposure = mean(Solar_exposure)) %>% 
+  arrange(lon) %>% 
+  ungroup() %>% 
+  filter(lon == max(lon) | lon == min(lon))
